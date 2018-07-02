@@ -4,6 +4,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'hospScoped.dart';
 import 'hospitalModel.dart';
 import 'mainScopeModel.dart';
+import 'package:http/http.dart' as http;
 
 class AddPatient extends StatefulWidget {
   @override

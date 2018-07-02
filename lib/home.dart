@@ -6,65 +6,106 @@ import 'hospitalModel.dart';
 import 'mainScopeModel.dart';
 
 
+class Home extends StatefulWidget {
+  MainModel model;
 
-class Home extends StatelessWidget {
+  Home(this.model);
+
+
+  @override
+  _HomeState createState() => new _HomeState(model);
+}
+
+class _HomeState extends State<Home> {
+
   GlobalKey<FormState> editPatientKey = new GlobalKey<FormState>();
   String diagnosis;
   String ptName;
+  MainModel model;
+
+  _HomeState(this.model);
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    if (model.fetchPatients != null) {
+      model.fetchPatients();
+    } else {
+      print('No list available');
+    }
+
+    super.initState();
+  }
 
 
   @override
   Widget build(BuildContext context) {
     return new ScopedModelDescendant<MainModel>(
         builder: (context, _, model) {
-
           return new Scaffold(
-        appBar: new AppBar(
-          title: new Text('Simple Hospital'),
-          backgroundColor: Theme.of(context).primaryColor,
-          leading: new Text('${model.user.email}'),
-          actions: <Widget>[
-            new IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  Navigator.of(context).push(
-                      new MaterialPageRoute(builder: (BuildContext context) {
-                        return new AddPatient();
-                      }));
-                }),
-            new IconButton(icon: Icon(Icons.add_box), onPressed: () {}),
-          ],
-        ),
-        body: new Container(
-              margin: EdgeInsets.all(10.0),
-              padding: EdgeInsets.all(10.0),
-              child: new ListView.builder(
-                  itemCount: model.listOfPatients.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      leading: new CircleAvatar(
-                        backgroundColor: Colors.redAccent,
-                        child: new IconButton(
-                            icon: new Icon(Icons.edit),
-                            onPressed: () {
-                              _showDialog(context, index, model);
-                            }),
-                      ),
-                      trailing: new IconButton(
-                          icon: new Icon(Icons.delete),
-                          onPressed: () {
-                            model.removeProduct(index);
-
-                          }),
-                      title: new Text(model.listOfPatients[index].patientName),
-                      subtitle: new Text(model.listOfPatients[index].diagnosis),
-                    );
+            appBar: new AppBar(
+              title: new Text('Simple Hospital'),
+              backgroundColor: Theme
+                  .of(context)
+                  .primaryColor,
+              leading: new Text('${model.user.email}'),
+              actions: <Widget>[
+                new IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                          new MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return new AddPatient();
+                              }));
+                    }),
+                new IconButton(icon: Icon(Icons.add_box), onPressed: () {}),
+              ],
+            ),
+            body: _buildProducts(model),
+          );
+        }
+    );
+  }
+  Widget productListWidget(MainModel model){
+    return new Container(
+    margin: EdgeInsets.all(10.0),
+    padding: EdgeInsets.all(10.0),
+    child: new ListView.builder(
+        itemCount: model.listOfPatients.length,
+        itemBuilder: (BuildContext context, int index) {
+          //print(' from List Builder: ${model.listOfPatients[index].patientName}');
+          return ListTile(
+            leading: new CircleAvatar(
+              backgroundColor: Colors.redAccent,
+              child: new IconButton(
+                  icon: new Icon(Icons.edit),
+                  onPressed: () {
+                    _showDialog(context, index, model);
                   }),
             ),
-    );
-        });
+            trailing: new IconButton(
+                icon: new Icon(Icons.delete),
+                onPressed: () {
+                  model.removeProduct(model.listOfPatients[index], index);
+                }),
+            title: new Text(model.listOfPatients[index].patientName),
+            subtitle: new Text(model.listOfPatients[index].diagnosis),
+          );
+        }),
+  );
+  }
 
+  Widget _buildProducts(MainModel model) {
+    Widget content = Center(child: new Text('No Patients found'),);
+     if (model.listOfPatients.length > 0 && !model.isLoading) {
 
+        content = productListWidget(model);
+    } else {
+      content = Center(child :CircularProgressIndicator());
+    }
+    return content;
   }
 
   void _showDialog(BuildContext context, int index, MainModel model) {
@@ -125,13 +166,14 @@ class Home extends StatelessWidget {
     FormState form = editPatientKey.currentState;
     if (form.validate()) {
       form.save();
-      Patient patient = new Patient(diagnosis: diagnosis, patientName: ptName);
+      Patient patient = new Patient(diagnosis: diagnosis, patientName: ptName, id: model.listOfPatients[index].id);
 
       model.editPatient(patient, index);
-
 
 
       Navigator.pop(context);
     }
   }
 }
+
+

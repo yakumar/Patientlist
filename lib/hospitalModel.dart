@@ -8,10 +8,12 @@ class Doctor {
 }
 
 class Patient {
+  String email;
+   String id;
 
   final String patientName;
   final String diagnosis;
-  Patient({this.patientName, this.diagnosis});
+  Patient({this.id, this.patientName, this.diagnosis, this.email});
 
 }
 

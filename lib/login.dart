@@ -57,7 +57,7 @@ class Login extends StatelessWidget {
                   new Padding(
                     padding: EdgeInsets.all(30.0),
                     child: new RaisedButton(
-                      onPressed: () {_loginPressed(model.login, context);},
+                      onPressed: () {_loginPressed(model.login, context, model);},
                       child: new Text('Login'),
                     ),
                   )
@@ -70,7 +70,7 @@ class Login extends StatelessWidget {
     );
   }
 
-  void _loginPressed(Function login, BuildContext context) {
+  void _loginPressed(Function login, BuildContext context, MainModel model) {
     FormState form = loginFormKey.currentState;
 
     if(form.validate()){
@@ -80,7 +80,7 @@ class Login extends StatelessWidget {
 
       Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context){
 
-        return new Home();
+        return new Home(model);
       }));
     }
 
