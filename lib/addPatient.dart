@@ -3,6 +3,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 import 'hospScoped.dart';
 import 'hospitalModel.dart';
+import 'mainScopeModel.dart';
 
 class AddPatient extends StatefulWidget {
   @override
@@ -11,7 +12,9 @@ class AddPatient extends StatefulWidget {
 
 class _AddPatientState extends State<AddPatient> {
   GlobalKey<FormState> patientFormKey = GlobalKey<FormState>();
-  Patient patient = new Patient(diagnosis: "", patientName: "");
+  String diagnosis = "";
+  String ptName = "";
+  
 
 
   @override
@@ -20,7 +23,7 @@ class _AddPatientState extends State<AddPatient> {
         appBar: new AppBar(
           title: new Text('Add Patient'),
         ),
-        body: ScopedModelDescendant<Hospital>(
+        body: ScopedModelDescendant<MainModel>(
           builder: (context, _, model) {
             return new Container(
                 alignment: Alignment.center,
@@ -38,7 +41,7 @@ class _AddPatientState extends State<AddPatient> {
                             }
                           },
                           onSaved: (String val){
-                            patient.patientName = val;
+                            ptName = val;
 
                           },
                           decoration:
@@ -51,7 +54,7 @@ class _AddPatientState extends State<AddPatient> {
                             }
                           },
                           onSaved: (String val){
-                            patient.diagnosis = val;
+                            diagnosis = val;
                           },
                           decoration:
                               new InputDecoration(labelText: 'Type diagnosis'),
@@ -70,12 +73,17 @@ class _AddPatientState extends State<AddPatient> {
         ));
   }
 
-  void _addPatient(Hospital model) {
+  void _addPatient(MainModel model) {
     FormState form = patientFormKey.currentState;
 
     if(form.validate()){
       form.save();
+      Patient patient = new Patient(patientName: ptName, diagnosis: diagnosis);
       model.addProduct(patient);
+
+
+      print('from add patient: ${model.patientList}');
+
       //print(model.patientsList.length.toString());
 
       form.reset();

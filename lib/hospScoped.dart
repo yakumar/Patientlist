@@ -1,16 +1,19 @@
 import 'hospitalModel.dart';
 
-import 'package:scoped_model/scoped_model.dart';
+import 'connectedScopeModel.dart';
 
-class Hospital extends Model{
-  List<Doctor> _doctorsList = [];
-  List<Patient> _patientList = [];
+class Hospital extends ConnectedScopeModel{
 
-  List<Patient> get patientsList {
-    return List.from(_patientList);
+
+
+  List<Doctor> doctorsList = [];
+
+  List<Patient> get listOfPatients {
+    return List.from(patientList);
+    notifyListeners();
   }
 
-  List<Doctor> get doctorsList {
+  List<Doctor> get allDoctorsList {
     return List.from(doctorsList);
   }
 
@@ -18,29 +21,30 @@ class Hospital extends Model{
 
 
   void addProduct(Patient patient){
-    _patientList.add(patient);
+    patientList.add(patient);
     notifyListeners();
 
 
   }
 
   void editPatient(Patient patient, int index){
-    _patientList[index] = patient;
+    patientList[index] = patient;
     notifyListeners();
 
 
   }
   void removeProduct(int index){
-    _patientList.removeAt(index);
+    patientList.removeAt(index);
     notifyListeners();
 
   }
 
   void addDoctor(Doctor doctor){
-    _doctorsList.add(doctor);
+    allDoctorsList.add(doctor);
     notifyListeners();
 
   }
+
 
 
 
