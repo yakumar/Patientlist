@@ -8,4 +8,13 @@ build/
 
 .flutter-plugins
 
-constants
+constants/
+
+android/gradlew
+android/gradlew.bat
+android/gradle/wrapper/gradle-wrapper.jar
+
+#intellJ
+*.iml
+*.ipr
+*.iws
