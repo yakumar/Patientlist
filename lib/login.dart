@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 import 'mainScopeModel.dart';
 
@@ -92,6 +92,8 @@ class _LoginState extends State<Login> {
   void _loginPressed(Function login, BuildContext context, MainModel model,
       Function signup) async {
     FormState form = loginFormKey.currentState;
+    SharedPreferences sharepref = await SharedPreferences.getInstance();
+
 
     if (form.validate()) {
       form.save();
@@ -101,7 +103,8 @@ class _LoginState extends State<Login> {
          if (signinSuccess['success']){
            Navigator.of(context).pushReplacement(
                new MaterialPageRoute(builder: (BuildContext context) {
-                 return new Home(model);
+                 return new Home(model, sharepref);
+
                }));
 
          }else {
@@ -131,7 +134,7 @@ class _LoginState extends State<Login> {
         if (signupSuccess['success']) {
           Navigator.of(context).pushReplacement(
               new MaterialPageRoute(builder: (BuildContext context) {
-            return new Home(model);
+            return new Home(model, sharepref);
           }));
         } else {
           showDialog(

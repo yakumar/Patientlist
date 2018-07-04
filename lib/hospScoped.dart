@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'connectedScopeModel.dart';
 import 'hospitalModel.dart';
@@ -29,7 +30,8 @@ class Hospital extends ConnectedScopeModel {
     };
 
     http
-        .post('https://test-8e577.firebaseio.com/pateintList.json',
+        .post(
+            'https://test-8e577.firebaseio.com/pateintList.json?auth=${user.token}',
             body: json.encode(newProduct))
         .then((http.Response response) {
       final Map<String, dynamic> responseData = json.decode(response.body);
@@ -52,66 +54,63 @@ class Hospital extends ConnectedScopeModel {
       'email': user.email
     };
 
-    http.put('https://test-8e577.firebaseio.com/pateintList/${patient.id}.json', body: json.encode(editedProduct)).then((http.Response response){
+    http
+        .put(
+            'https://test-8e577.firebaseio.com/pateintList/${patient
+        .id}.json?auth=${user.token}',
+            body: json.encode(editedProduct))
+        .then((http.Response response) {
       isLoading = false;
       patientList[index] = patient;
       notifyListeners();
-
-
-
     });
-
-
   }
 
-  Future<Null> fetchPatients() {
+  Future<Null> fetchPatients() async {
     isLoading = true;
-    return http
-        .get('https://test-8e577.firebaseio.com/pateintList.json')
-        .then((http.Response response) {
-      final Map<String, dynamic> finalData = json.decode(response.body);
+    SharedPreferences directToken = await SharedPreferences.getInstance();
+    
+    String newAuthToken = directToken.get('token') != null ? directToken.get('token'): user.token;
+    print('login Fetch ${directToken.get('token')}');
+    print('login Fetch ${user.token}');
 
-      final List<Patient> fetchedPatientList = [];
+    var response = await http.get(
+        'https://test-8e577.firebaseio.com/pateintList.json?auth=${newAuthToken}');
 
-      if(finalData == null){
+    final Map<String, dynamic> finalData = json.decode(response.body);
 
-        isLoading = false;
+    final List<Patient> fetchedPatientList = [];
 
-        notifyListeners();
-        return;
-      }
+    if (finalData == null) {
+      isLoading = false;
 
-      //print(finalData);
+      notifyListeners();
+      return;
+    } else {
       finalData.forEach((String patId, dynamic patData) {
+        print('from login fetch: ${patData}');
         Patient patient = new Patient(
             id: patId,
             patientName: patData['name'],
             diagnosis: patData['diagnosis'],
             email: patData['email']);
         fetchedPatientList.add(patient);
-
-
-
-
       });
       patientList = fetchedPatientList;
       isLoading = false;
 
       notifyListeners();
-
-    });
+    }
   }
 
   void removeProduct(Patient patient, int index) {
     isLoading = true;
-    http.delete('https://test-8e577.firebaseio.com/pateintList/${patient.id}.json').then((http.Response response){
+    http.delete('https://test-8e577.firebaseio.com/pateintList/${patient
+        .id}.json?auth=${user.token}').then((http.Response response) {
       isLoading = false;
       patientList.removeAt(index);
       notifyListeners();
-
-
     });
-
   }
 
   void addDoctor(Doctor doctor) {

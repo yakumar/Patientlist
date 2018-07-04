@@ -1,34 +1,45 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import 'addPatient.dart';
 import 'hospitalModel.dart';
 import 'mainScopeModel.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login.dart';
 
 class Home extends StatefulWidget {
   MainModel model;
+  SharedPreferences sharepref;
 
-  Home(this.model);
+
+  Home(this.model, this.sharepref);
 
 
   @override
-  _HomeState createState() => new _HomeState(model);
+  _HomeState createState() => new _HomeState(model, sharepref);
 }
 
 class _HomeState extends State<Home> {
+  SharedPreferences sharepref;
+
+
+
 
   GlobalKey<FormState> editPatientKey = new GlobalKey<FormState>();
   String diagnosis;
   String ptName;
   MainModel model;
 
-  _HomeState(this.model);
+  _HomeState(this.model, this.sharepref);
+
 
 
   @override
   void initState() {
     // TODO: implement initState
+
     if (model.fetchPatients != null) {
       model.fetchPatients();
     } else {
@@ -49,7 +60,7 @@ class _HomeState extends State<Home> {
               backgroundColor: Theme
                   .of(context)
                   .primaryColor,
-              leading: new Text('${model.user.email}'),
+              leading: new Text('${sharepref.get('email') != null? sharepref.get('email'): model.user.email}'),
               actions: <Widget>[
                 new IconButton(
                     icon: Icon(Icons.add),
@@ -60,7 +71,15 @@ class _HomeState extends State<Home> {
                                 return new AddPatient();
                               }));
                     }),
-                new IconButton(icon: Icon(Icons.add_box), onPressed: () {}),
+                new IconButton(icon: Icon(Icons.all_out), onPressed: () {
+                  sharepref.clear();
+                  Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context){
+                    return new Login();
+
+                  }));
+
+
+                }),
               ],
             ),
             body: _buildProducts(model),
